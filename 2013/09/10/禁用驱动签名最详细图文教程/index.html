@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Windows 8 鼠标右上角/右下角弹出边栏，选择“设置” 点击“更改电脑设置” 选择“常规”，右侧拖到底，点击“高级启动”-“立即重启”； 稍后进入恢复页面，选择“疑难解答” 进入疑难解答后，选择“高级选项”； 进入高级选项后，选择“启动设置”； 点击“重启”； 重启后，按键盘上的数字键7即可。  Windows 8.1 鼠标右上角/右下角弹出边栏，选择“设置” 点击“更改电脑设置” 在电脑设">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows 8 &#x2F; 8.1 禁用驱动签名最详细图文教程">
+<meta property="og:url" content="http://www.sujing.info/2013/09/10/禁用驱动签名最详细图文教程/index.html">
+<meta property="og:site_name" content="# Coding - 午夜场">
+<meta property="og:description" content="Windows 8 鼠标右上角/右下角弹出边栏，选择“设置” 点击“更改电脑设置” 选择“常规”，右侧拖到底，点击“高级启动”-“立即重启”； 稍后进入恢复页面，选择“疑难解答” 进入疑难解答后，选择“高级选项”； 进入高级选项后，选择“启动设置”； 点击“重启”； 重启后，按键盘上的数字键7即可。  Windows 8.1 鼠标右上角/右下角弹出边栏，选择“设置” 点击“更改电脑设置” 在电脑设">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://www.sujing.info/assets/img/driver01.png">
+<meta property="og:image" content="http://www.sujing.info/assets/img/driver02.png">
+<meta property="og:image" content="http://www.sujing.info/assets/img/driver03.png">
+<meta property="og:image" content="http://www.sujing.info/assets/img/driver04.jpg">
+<meta property="og:image" content="http://www.sujing.info/assets/img/driver05.jpg">
+<meta property="og:image" content="http://www.sujing.info/assets/img/driver06.jpg">
+<meta property="og:image" content="http://www.sujing.info/assets/img/driver07.jpg">
+<meta property="og:image" content="http://www.sujing.info/assets/img/driver08.jpg">
+<meta property="og:image" content="http://www.sujing.info/assets/img/driver09.jpg">
+<meta property="og:image" content="http://www.sujing.info/assets/img/driver10.jpg">
+<meta property="og:image" content="http://www.sujing.info/assets/img/driver11.jpg">
+<meta property="og:image" content="http://www.sujing.info/assets/img/driver12.jpg">
+<meta property="og:image" content="http://www.sujing.info/assets/img/driver13.jpg">
+<meta property="og:updated_time" content="2019-04-14T08:59:05.541Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Windows 8 &#x2F; 8.1 禁用驱动签名最详细图文教程">
+<meta name="twitter:description" content="Windows 8 鼠标右上角/右下角弹出边栏，选择“设置” 点击“更改电脑设置” 选择“常规”，右侧拖到底，点击“高级启动”-“立即重启”； 稍后进入恢复页面，选择“疑难解答” 进入疑难解答后，选择“高级选项”； 进入高级选项后，选择“启动设置”； 点击“重启”； 重启后，按键盘上的数字键7即可。  Windows 8.1 鼠标右上角/右下角弹出边栏，选择“设置” 点击“更改电脑设置” 在电脑设">
+<meta name="twitter:image" content="http://www.sujing.info/assets/img/driver01.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.sujing.info/2013/09/10/禁用驱动签名最详细图文教程/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Windows 8 / 8.1 禁用驱动签名最详细图文教程 | # Coding - 午夜场</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title"># Coding - 午夜场</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">想法 玩物 创意</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.sujing.info/2013/09/10/禁用驱动签名最详细图文教程/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Justin Su">
+      <meta itemprop="description" content="想法 玩物 创意">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="# Coding - 午夜场">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Windows 8 / 8.1 禁用驱动签名最详细图文教程
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2013-09-10 14:48:37" itemprop="dateCreated datePublished" datetime="2013-09-10T14:48:37+08:00">2013-09-10</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-04-14 16:59:05" itemprop="dateModified" datetime="2019-04-14T16:59:05+08:00">2019-04-14</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Windows 8</p>
+<p>鼠标右上角/右下角弹出边栏，选择“设置”<br><img src="/assets/img/driver01.png"></p>
+<p>点击“更改电脑设置”<br><img src="/assets/img/driver02.png"></p>
+<p>选择“常规”，右侧拖到底，点击“高级启动”-“立即重启”；<br><img src="/assets/img/driver03.png"></p>
+<p>稍后进入恢复页面，选择“疑难解答”<br><img src="/assets/img/driver04.jpg"></p>
+<p>进入疑难解答后，选择“高级选项”；<br><img src="/assets/img/driver05.jpg"></p>
+<p>进入高级选项后，选择“启动设置”；<br><img src="/assets/img/driver06.jpg"></p>
+<p>点击“重启”；<br><img src="/assets/img/driver07.jpg"></p>
+<p>重启后，按键盘上的数字键7即可。<br><img src="/assets/img/driver08.jpg"></p>
+<hr>
+<p>Windows 8.1</p>
+<p>鼠标右上角/右下角弹出边栏，选择“设置”<br><img src="/assets/img/driver09.jpg"></p>
+<p>点击“更改电脑设置”<br><img src="/assets/img/driver10.jpg"></p>
+<p>在电脑设置里，点击“更新和恢复”；<br><img src="/assets/img/driver11.jpg"></p>
+<p>在更新和恢复里，点击“恢复”，在右侧点击“高级启动”-“立即重启”；<br><img src="/assets/img/driver12.jpg"></p>
+<p>稍后进入恢复界面，点击“疑难解答”；<br><img src="/assets/img/driver13.jpg"></p>
+<p>之后的步骤和Windows 8一致，选择“高级选项”-“启动设置”-“重启”-键盘数字键7，即可。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2013/09/14/Visual-C-编程实现Soft-AP-HostedNetwork-承载网络-功能/" rel="prev" title="Visual C++ 编程实现Soft AP (HostedNetwork/承载网络) 功能">
+                Visual C++ 编程实现Soft AP (HostedNetwork/承载网络) 功能 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Justin Su</p>
+              <div class="site-description motion-element" itemprop="description">想法 玩物 创意</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">12</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Justin Su</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="在lang:bash中，$、*、?、[、]、’、”、`、\、有特殊的含义。类似于编译器的预编译过程，lang:bash在扫描命令行的过程中，会在文本层次上，优先解释所有的特殊字符，之后对转换完成的新命令行，进行内核的系统调用。 其中，反引号类似于函数调用，而不仅仅是简单的文本替换及匹配。 命令行中，被单引号引用的部分，其中所有的特殊字符按照普通字符解释； 双引号引用的部分，仅解释$（美元符号）、\">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux Bash环境下特殊符号转义的小结">
+<meta property="og:url" content="http://www.sujing.info/2014/02/17/Linux-Bash环境下特殊符号转义的小结/index.html">
+<meta property="og:site_name" content="# Coding - 午夜场">
+<meta property="og:description" content="在lang:bash中，$、*、?、[、]、’、”、`、\、有特殊的含义。类似于编译器的预编译过程，lang:bash在扫描命令行的过程中，会在文本层次上，优先解释所有的特殊字符，之后对转换完成的新命令行，进行内核的系统调用。 其中，反引号类似于函数调用，而不仅仅是简单的文本替换及匹配。 命令行中，被单引号引用的部分，其中所有的特殊字符按照普通字符解释； 双引号引用的部分，仅解释$（美元符号）、\">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-04-14T08:51:29.739Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux Bash环境下特殊符号转义的小结">
+<meta name="twitter:description" content="在lang:bash中，$、*、?、[、]、’、”、`、\、有特殊的含义。类似于编译器的预编译过程，lang:bash在扫描命令行的过程中，会在文本层次上，优先解释所有的特殊字符，之后对转换完成的新命令行，进行内核的系统调用。 其中，反引号类似于函数调用，而不仅仅是简单的文本替换及匹配。 命令行中，被单引号引用的部分，其中所有的特殊字符按照普通字符解释； 双引号引用的部分，仅解释$（美元符号）、\">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.sujing.info/2014/02/17/Linux-Bash环境下特殊符号转义的小结/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Linux Bash环境下特殊符号转义的小结 | # Coding - 午夜场</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title"># Coding - 午夜场</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">想法 玩物 创意</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.sujing.info/2014/02/17/Linux-Bash环境下特殊符号转义的小结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Justin Su">
+      <meta itemprop="description" content="想法 玩物 创意">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="# Coding - 午夜场">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Linux Bash环境下特殊符号转义的小结
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2014-02-17 18:42:12" itemprop="dateCreated datePublished" datetime="2014-02-17T18:42:12+08:00">2014-02-17</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-04-14 16:51:29" itemprop="dateModified" datetime="2019-04-14T16:51:29+08:00">2019-04-14</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在lang:bash中，$、*、?、[、]、’、”、`、\、有特殊的含义。类似于编译器的预编译过程，lang:bash在扫描命令行的过程中，会在文本层次上，优先解释所有的特殊字符，之后对转换完成的新命令行，进行内核的系统调用。</p>
+<p>其中，反引号类似于函数调用，而不仅仅是简单的文本替换及匹配。</p>
+<p>命令行中，被单引号引用的部分，其中所有的特殊字符按照普通字符解释；</p>
+<p>双引号引用的部分，仅解释$（美元符号）、\（\n \t除外）、`（反引号），解释后的文本仅按照普通文字处理（同单引号）。</p>
+<p>反引号相当于命令替换，引用的部分优先执行，将运行结果替换到外层的命令行文本中；反引号可以嵌套，但是嵌套时内部的反引号必须用\转义</p>
+<p>反斜杠用于命令换行，以及echo -e解释。</p>
+<p>网上各种文章常见的例子，其中第二行重点介绍一下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># x=*                     </span><br><span class="line"># echo $x　　　　　　此行执行了两次替换，将$x替换为*，之后将*替换为当前目录下所有文件列表的文本，</span><br><span class="line"></span><br><span class="line">　　　　　　　　　　该文本作为参数赋给echo（lang:bash会自动按照优先级，进行多层次替换 ）</span><br><span class="line">hello.sh menus.sh misc.sh phonebook tshift.sh</span><br><span class="line"># echo &apos;$x&apos;               $x不进行任何解释，直接将文本‘$x’作为参数赋给echo</span><br><span class="line">$x</span><br><span class="line"># echo &quot;$x&quot;              $x替换为*，但是由于在双引号内，*不做替换，因此文本“*”将作为参数赋给echo</span><br></pre></td></tr></table></figure></p>
+<p>Tips:</p>
+<p>大多数Linux Distribution的默认shell为lang:bash，查询当前主机所有shell可执行如下命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ cat  /etc/shell</span><br></pre></td></tr></table></figure></p>
+<p>lang:bash内部集成了40多条命令，通用格式为：</p>
+<p>$ 命令 [-选项] [参数]</p>
+<p>其中，”-“后为单字符选项，”–”后为完整的单词选项。一般来说，命令的某项功能(feature)，会同时支持单字符选项及对应的多字符选项。</p>
+<p>在lang:bash中，<em>、?、[、]有特殊的含义，用于字符匹配。</em>代表0到多个字符，？代表单个字符。[]用于匹配单个字符，内部用短横线按照ASCII码顺序标明匹配的字符范围，或者枚举所有要匹配的字符。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2013/09/14/Visual-C-编程实现Soft-AP-HostedNetwork-承载网络-功能/" rel="next" title="Visual C++ 编程实现Soft AP (HostedNetwork/承载网络) 功能">
+                <i class="fa fa-chevron-left"></i> Visual C++ 编程实现Soft AP (HostedNetwork/承载网络) 功能
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/07/23/将P2P虚拟货币的算力用于公共的分布式计算的猜想/" rel="prev" title="将P2P虚拟货币（比特币、莱特币....）的算力用于公共的分布式计算的猜想">
+                将P2P虚拟货币（比特币、莱特币....）的算力用于公共的分布式计算的猜想 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Justin Su</p>
+              <div class="site-description motion-element" itemprop="description">想法 玩物 创意</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">12</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Justin Su</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

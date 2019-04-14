@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="上一篇文章讲解了带位域的结构体，在从大端机（Big Endian）传输到小端机(Little Endian)后如何解析位域值。下面继续深入详解字节序，以及位域存储的方式。 (1) 我们知道，存储数字时，对小端机而言，数字的低位，存在低地址，高位存在高地址。大端机正相反。 (2) 读取的方式，也是一样的。对于小端机，读出的低地址位作为数字的低位。 (3) 此外Big-Endian/Little-En">
+<meta property="og:type" content="article">
+<meta property="og:title" content="字节序转换与结构体位域值(bit field)的读取Part2-深入理解字节序和结构体位域存储方式">
+<meta property="og:url" content="http://www.sujing.info/2017/08/30/字节序转换与结构体位域值的读取Part2/index.html">
+<meta property="og:site_name" content="# Coding - 午夜场">
+<meta property="og:description" content="上一篇文章讲解了带位域的结构体，在从大端机（Big Endian）传输到小端机(Little Endian)后如何解析位域值。下面继续深入详解字节序，以及位域存储的方式。 (1) 我们知道，存储数字时，对小端机而言，数字的低位，存在低地址，高位存在高地址。大端机正相反。 (2) 读取的方式，也是一样的。对于小端机，读出的低地址位作为数字的低位。 (3) 此外Big-Endian/Little-En">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-04-14T08:42:42.265Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="字节序转换与结构体位域值(bit field)的读取Part2-深入理解字节序和结构体位域存储方式">
+<meta name="twitter:description" content="上一篇文章讲解了带位域的结构体，在从大端机（Big Endian）传输到小端机(Little Endian)后如何解析位域值。下面继续深入详解字节序，以及位域存储的方式。 (1) 我们知道，存储数字时，对小端机而言，数字的低位，存在低地址，高位存在高地址。大端机正相反。 (2) 读取的方式，也是一样的。对于小端机，读出的低地址位作为数字的低位。 (3) 此外Big-Endian/Little-En">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.sujing.info/2017/08/30/字节序转换与结构体位域值的读取Part2/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>字节序转换与结构体位域值(bit field)的读取Part2-深入理解字节序和结构体位域存储方式 | # Coding - 午夜场</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title"># Coding - 午夜场</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">想法 玩物 创意</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.sujing.info/2017/08/30/字节序转换与结构体位域值的读取Part2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Justin Su">
+      <meta itemprop="description" content="想法 玩物 创意">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="# Coding - 午夜场">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">字节序转换与结构体位域值(bit field)的读取Part2-深入理解字节序和结构体位域存储方式
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2017-08-30 22:11:37" itemprop="dateCreated datePublished" datetime="2017-08-30T22:11:37+08:00">2017-08-30</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-04-14 16:42:42" itemprop="dateModified" datetime="2019-04-14T16:42:42+08:00">2019-04-14</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>上一篇文章讲解了带位域的结构体，在从大端机（Big Endian）传输到小端机(Little Endian)后如何解析位域值。下面继续深入详解字节序，以及位域存储的方式。</p>
+<p>(1) 我们知道，存储数字时，对小端机而言，数字的低位，存在低地址，高位存在高地址。大端机正相反。</p>
+<p>(2) 读取的方式，也是一样的。对于小端机，读出的低地址位作为数字的低位。</p>
+<p>(3) 此外Big-Endian/Little-Endian存储顺序，不仅仅针对字节，还针对字节内的比特位。对于小端机而言，字节内的8个比特，低地址端比特位，对应二进制数字的低位。</p>
+<p>(4) 对于结构体的多个位域，和普通成员一样，编译器同样按照地址由低到高顺序存储，无论是大端机还是小端机。只是位域内的比特顺序有区别罢了。</p>
+<p>(5) 表述一个数值，可以使用两种视图 :</p>
+<p>第一个是“逻辑视图”，通俗的表述方式，也就是我们平时在书本上看到的，手写数字时的方式。左边为高位，右边为低位。例如 375，-4.1，036，0xAF4D215B</p>
+<p>另一个是“内存视图”，即数字在内存中的存储方式，是我们程序员专有的一种表述方式。左边为低地址字节，右边为高地址字节。字节内左边为低地址比特位，右边为高地址比特位。很明显，同一个unsigned int值,在大端机、小端机上，分别有两种不同的“内存视图”。</p>
+<p>例如，uint16 0x2A1F，二进制比特位为0010 1010 0001 1111 （显然这一行使用的就是“逻辑视图”）</p>
+<p>在小端机上的“内存视图”为：1111 1000 0101 0100 （低地址 -&gt; 高地址）</p>
+<p>在大端机上的“内存视图”为：0010 1010 0001 1111 （低地址 -&gt; 高地址）</p>
+<p>另外可以看到，大端机的”内存视图”和”逻辑视图”是相同的。在很多相关的文章里，并没有去区分数字的两种表述方式，导致了很多混淆。其次，很多例子使用16进制，只能用于表达字节序，无法精确表达内部的比特顺序。</p>
+<p>再举一个上一节使用过的例子：</p>
+<figure class="highlight plain"><figcaption><span>c</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">typedef struct _exam_</span><br><span class="line">&#123;</span><br><span class="line">　　unsigned int tag : 6;</span><br><span class="line">　　unsigned int field1 : 3;</span><br><span class="line">　　unsigned int field2 : 7;</span><br><span class="line">　　unsigned int field3 : 11;</span><br><span class="line">　　unsigned int pad : 5;</span><br><span class="line">&#125;Exam;</span><br><span class="line"> </span><br><span class="line">Exam ex;</span><br><span class="line">ex.tag = 4;</span><br><span class="line">ex.field1 = 2;</span><br><span class="line">ex.field2 = 0x3a;</span><br><span class="line">ex.field3 = 0x4C1;</span><br><span class="line">ex.pad = 0;</span><br></pre></td></tr></table></figure>
+<p>变量ex的6个位域的”内存视图”，在大端机是000100 010 0111010 10010110001 00000（低地址-&gt;高地址），在小端机是001000 010 0101110 10001101001 00000（低地址-&gt;高地址）。可见位域顺序是一样的，但是位域内比特位顺序不同。</p>
+<p>若按照4位一组，大端机”内存视图”为 0001 0001 0011 1010 1001 0110 0010 0000，如果按照unsigned int的方式读取这块内存，结果是0x113A9620，四个比特位对应一个16进制数，和”逻辑视图”完全一样</p>
+<p>在小端机上4位一组排列，”内存视图”为 0010 0001 0010 1110 1000 1101 0010 0000，如果按照unsigned int的方式读取这块内存，就会按照小端机的方式来解析内存。可以先把二进制翻译为”逻辑视图” - 把整个”内存视图”32位颠倒顺序，结果是0x04B17484，注意不是0x212E8D20.</p>
+<p>那么这些规则，对位域值的读取有什么影响呢？</p>
+<p>字节流在网络上传输是按照网络字节序传输的，也就是大端序。网卡不知道数据的含义(到底是int还是double,还是什么image)，只能看到一个个字节，因此它做的就是把每个字节的8个比特位转换为本机的位序。而具体的内容，则由我们的程序处理。比如对于整形等，调用socket接口的ntohl(),htonl()…等函数转换字节序。顺便提一句，对于float/double类型，可以直接memcpy到一个整形里面，之后按照整形正常的处理流程，到了目标机后，再memcpy到一个float/double里。</p>
+<p>char,short,int,long等2次幂大小的整形，作为一个单独的整体，经过整个流程梳理是没有任何问题的。但无法保证结构体内的多个位域，按照定义的先后顺序，从低地址到高地址排列。这意味着，无论如何，直接在代码中使用ex.tag的方式，是读不出tag位域的数据的。</p>
+<p>细分有如下几种情况：<br>(1) 主机内部传输无任何影响，毕竟是一样的CPU架构。</p>
+<p>(2) 相同字节序的主机间传输，同样没有影响。因为经过二次socket+网卡转换后，码流是相同的。读者可自行验证。</p>
+<p>(3) 大端机传输到小端机（上一节所描述的）。下列二进制值如没有特殊说明，都是”内存视图”。</p>
+<p>还以上面的位域为例，在大端机的为000100 010 0111010 10010110001 00000（低地址-&gt;高地址），按照四比特一组为： 0001 0001  0011 1010  1001 0110  0010 0000</p>
+<p>传输到网络中，由于大端序和网络序相同，所以网卡不做转换，字节流按照先后，依然是 0001 0001  0011 1010  1001 0110  0010 0000</p>
+<p>传输到小端机，网卡自动转换每个字节的比特序，但字节顺序维持原状， 1000 1000 0101 1100 0110 1001 0000 0100，可见原先跨字节相连的位域被”打散了”。字节内的位域，虽然比特顺序对了，但是从低比特位挪到了高比特位，位置错了。</p>
+<p>调用ntohl,比特序不变，转换字节序，0000 0100 0110 1001 0101 1100 1000 1000，效果是跨字节位域再次连通了。位域内存地址顺序，正好和原先相反。如果把大端机的内存视图画到一张纸上，相当于翻到纸的背面。</p>
+<p>此时，将这4个字节码流当作unsigned int，得到一个”无符号整形”，其”逻辑视图”等于大端机上的“内存视图”。左边恰好是结构体最开始的位域：0001 0001  0011 1010  1001 0110  0010 0000。因此我们将错就错，直接使用位操作符来左移相应的位数（需要计算后边所有位域的总比特数），即可得到对应的位域值。位移操作符等，都是对”逻辑视图”操作的。</p>
+<p>(4) 小端机传到大端机。网卡转换+ntohl转换后，依然在内存中得到一个位域顺序和正常顺序相反的”无符号整形”。只是这次使用位运算符要注意，第一个位域在”逻辑视图”的最右边，依次向左类推，和(3)的情形是相反的。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/06/26/python中的“引用”和C-的引用/" rel="next" title="python中的“引用”和C++的引用">
+                <i class="fa fa-chevron-left"></i> python中的“引用”和C++的引用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/09/15/Git简易参考手册/" rel="prev" title="Git简易参考手册">
+                Git简易参考手册 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Justin Su</p>
+              <div class="site-description motion-element" itemprop="description">想法 玩物 创意</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">12</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Justin Su</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

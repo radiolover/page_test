@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="去年互联网地图行业开始引入众包模式，国内比较大的地图商，比如四维图新、高德地图、百度地图纷纷开始推出UGC应用，众包给用户采集门址、公交站等信息，并按照工作量给与采集者一定的回报。我曾经玩过某德推出的“道路寻宝”APP，应用内部集成了道路拍拍、门址采集、公交拍拍、POI任务等。该应用有如下限制：（1）为了防止作弊，采集者必须打开GPS，才能拍摄门牌号。（2）为了保证图片清晰，采集工作只能在日出后半">
+<meta property="og:type" content="article">
+<meta property="og:title" content="时区之痒 - 从手机GPS模块获取的时间，真的是北京时间么？">
+<meta property="og:url" content="http://www.sujing.info/2015/03/15/时区之痒:从手机GPS模块获取的时间,真的是北京时间么/index.html">
+<meta property="og:site_name" content="# Coding - 午夜场">
+<meta property="og:description" content="去年互联网地图行业开始引入众包模式，国内比较大的地图商，比如四维图新、高德地图、百度地图纷纷开始推出UGC应用，众包给用户采集门址、公交站等信息，并按照工作量给与采集者一定的回报。我曾经玩过某德推出的“道路寻宝”APP，应用内部集成了道路拍拍、门址采集、公交拍拍、POI任务等。该应用有如下限制：（1）为了防止作弊，采集者必须打开GPS，才能拍摄门牌号。（2）为了保证图片清晰，采集工作只能在日出后半">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://www.sujing.info/assets/img/timezone.png">
+<meta property="og:updated_time" content="2019-04-14T08:43:49.837Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="时区之痒 - 从手机GPS模块获取的时间，真的是北京时间么？">
+<meta name="twitter:description" content="去年互联网地图行业开始引入众包模式，国内比较大的地图商，比如四维图新、高德地图、百度地图纷纷开始推出UGC应用，众包给用户采集门址、公交站等信息，并按照工作量给与采集者一定的回报。我曾经玩过某德推出的“道路寻宝”APP，应用内部集成了道路拍拍、门址采集、公交拍拍、POI任务等。该应用有如下限制：（1）为了防止作弊，采集者必须打开GPS，才能拍摄门牌号。（2）为了保证图片清晰，采集工作只能在日出后半">
+<meta name="twitter:image" content="http://www.sujing.info/assets/img/timezone.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://www.sujing.info/2015/03/15/时区之痒:从手机GPS模块获取的时间,真的是北京时间么/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>时区之痒 - 从手机GPS模块获取的时间，真的是北京时间么？ | # Coding - 午夜场</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title"># Coding - 午夜场</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">想法 玩物 创意</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.sujing.info/2015/03/15/时区之痒:从手机GPS模块获取的时间,真的是北京时间么/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Justin Su">
+      <meta itemprop="description" content="想法 玩物 创意">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="# Coding - 午夜场">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">时区之痒 - 从手机GPS模块获取的时间，真的是北京时间么？
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2015-03-15 13:35:37" itemprop="dateCreated datePublished" datetime="2015-03-15T13:35:37+08:00">2015-03-15</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-04-14 16:43:49" itemprop="dateModified" datetime="2019-04-14T16:43:49+08:00">2019-04-14</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>去年互联网地图行业开始引入众包模式，国内比较大的地图商，比如四维图新、高德地图、百度地图纷纷开始推出UGC应用，众包给用户采集门址、公交站等信息，并按照工作量给与采集者一定的回报。我曾经玩过某德推出的“道路寻宝”APP，应用内部集成了道路拍拍、门址采集、公交拍拍、POI任务等。该应用有如下限制：（1）为了防止作弊，采集者必须打开GPS，才能拍摄门牌号。（2）为了保证图片清晰，采集工作只能在日出后半小时至日落前半小时内进行。问题在于，应用仅仅读取手机的时间进行日出日落时间判断。有一次晚上参加用户线上会议，一位远在新疆的采集者抱怨，往往烈日当头采集就被强制结束。PS:其实还有一个BUG他没有发现：太阳升起之前，采集就已经放开了；而且如果你是位于东北三省东部的用户，在日落后依然可以采集~</p>
+<p>那么问题到底出在什么地方？先从时区谈起。</p>
+<h3 id="理论时区"><a href="#理论时区" class="headerlink" title="理论时区"></a>理论时区</h3><p>众所周知，由于时差问题，世界各地的日出日时刻是不同的。然而，每个国家或地区，都喜欢把日出时刻定在5-7点左右，把日落时刻定在17-19点左右。这样一来，使用全球统一的格林威治标准时间，就只能停留在专业领域，而在民用领域，大家各自为政，使用适合自己的时间。这就产生了时区。以穿越英国伦敦格林威治的本初子午线为基准，向东向西分别设置了12个时区，每个时区的“时间”数值相差一个小时。</p>
+<p>理论时区以被15整除的子午线为中心，向东西两侧延伸7.5度，即每15°划分一个时区，这是理论时区。理论时区的时间采用其中央经线（或标准经线）的地方时。所以每差一个时区，区时相差一个小时，相差多少个时区，就相差多少个小时。东边的时区时间比西边的时区时间来得早。格林威治的0度经线，向东西各延伸7.5度，构成的15度范围组成的时区就是UTC±0，0时区所采用的时间就是格林威治时间，该时间也被采用为国际标准时间度量。东经7.5-22.5度为东一区，以此类推，西半球也采取相同的类推方式。东十二区和西十二区是重合的(172.5E - 172.5W)，国际日期变更线(180E/W)从中间穿越。从东向西穿越，日期加1天，西向东穿越，日期减1天。</p>
+<h3 id="法定时区"><a href="#法定时区" class="headerlink" title="法定时区"></a>法定时区</h3><p>但是，国界线可不像经线、纬线那样平直。为了避开国界线，有的时区的形状并不规则，而且比较大的国家以国家内部行政分界线为时区界线，这是实际时区，即法定时区。于是，理论时区匀称、完美的划分，就变成了这样：（图片来自维基百科）<br><img src="/assets/img/timezone.png"></p>
+<p>从图中可以看到，中国横跨了5个理论时区（从东五区 - 东九区），但是全部归在了法定时区UTC+8。美国的法定时区则尽量趋近于理论时区，因此就有了美东、美西、太平洋..等时间的区别。为了充分利用阳光，有的地区夏季会采用夏时制。我国曾采用了6年夏时制，但是由于我国将多个理论时区统一为东八区，因此新疆等天亮的较晚的地区并不能起到节约能源的作用，加上我国民众科学素养普遍不高，导致了更多的混乱，因此草草收场。</p>
+<h3 id="北京时间"><a href="#北京时间" class="headerlink" title="北京时间"></a>北京时间</h3><p>某一国采用哪一个法定时区，一般取决于首都所在的理论时区。北京位于东八区，因此采用东八区中心经线（120E）所在位置的地方平太阳时（<strong><em>理论时间</em></strong>）作为<strong><em>法定时间</em></strong>，而不是北京的地方平太阳时（北京大致位于116E,40N附近）。上海位于120E,31N，几乎挨着东八时区的中央经线。</p>
+<p>移动设备、计算机的时间是如何校准的？</p>
+<p>众所周知，目前全球有为数众多的互联网授时服务，例如美国海军天文台授时中心，我国有中国科学院国家授时中心。这些授时服务提供的数据格式多种多样，比如从1970年1月1日到现在多少秒的整数。但这些授时中心采用的时间基准是GMT，即格林威治国际标准时间。我们电脑全新安装系统，或者手机、平板第一次启用，一般会有区域设置：“UTC+8，北京、香港、台北、新加坡”。设置完毕后，设备就可以换算出当地时间。</p>
+<h3 id="GPS时间"><a href="#GPS时间" class="headerlink" title="GPS时间"></a>GPS时间</h3><p>到这里相信很多人也都明白了。GPS模块（以Android手机为例，调用location.getTime()）获取的时间，是基于理论时区进行计算的<strong><em>当地理论时间</em></strong>。GPS卫星会广播当前的世界标准时间，然后根据经纬度算出所在理论时区，即可在线性时间内算出理论时区的当地时间。比如你人在新疆喀什，位于理论东五区，此时北京时间是上午10点，那么你的手机时间也是10点，但是GPS获取的时间则是7点（东八区 - 东五区 = 3小时时差）。</p>
+<h3 id="仅通过经纬度能否获取当地法定时间？"><a href="#仅通过经纬度能否获取当地法定时间？" class="headerlink" title="仅通过经纬度能否获取当地法定时间？"></a>仅通过经纬度能否获取当地法定时间？</h3><p>理论上可行。但是实际上非常困难：由于国界线的不规则性，要存储地球上某一点（假设是10米 * 10米面积的粒度）所在的国家或法定时区，数据量是非常庞大的，实际意义并不大。因此当前的解决方案，都是要求用户自己手动设置区域选项（而且大多是在初始化向导中强制设置）。夏时制的映射规则则要简单多了，因此一般都会有设备自行判断。</p>
+<h3 id="“道路寻宝”BUG的解决方案"><a href="#“道路寻宝”BUG的解决方案" class="headerlink" title="“道路寻宝”BUG的解决方案"></a>“道路寻宝”BUG的解决方案</h3><p>第一，将当前时间获取方式改为通过GPS获取，就可以进行真正的日出日落判断。如果以时区为粒度，一般在理论上取早晨6点日出，18点日落，并在夏至、冬至前后进行适当调整。</p>
+<p>第二，有些Android手机厂商开发的driver实在是太烂了，通过getTime可能获取不到当地理论时间，那么只有通过GPS读取的经度进行代码switch-case条件判断了：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">switch</span>(longitude)</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">　　<span class="keyword">case</span> <span class="number">67.5E-82</span><span class="number">.5</span>E（理论东五区）: 使用当地理论时间即“手机时间（北京时间）- <span class="number">3</span>小时”判断;</span><br><span class="line"></span><br><span class="line">　　<span class="keyword">case</span> <span class="number">82.5E-97</span><span class="number">.5</span>E（理论东六区）: 使用当地理论时间即“手机时间（北京时间）- <span class="number">2</span>小时”判断；</span><br><span class="line"></span><br><span class="line">　　.....；</span><br><span class="line"></span><br><span class="line">　　<span class="keyword">case</span> <span class="number">127.5E-142</span><span class="number">.5</span>E（理论东九区）: 使用当地理论时间即“手机时间（北京时间）+ <span class="number">1</span>小时”判断；<span class="comment">// 黑龙江佳木斯市抚远县黑瞎子岛差不多就在134E，这里是中国最东端</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>更好的做法，就是在按照上述方式获得当地理论时间后，还要直接通过GPS经纬度，计算该点的日出日落时刻。因为该方式是精确到点的，因此计算的日出日落时刻和实际的日出日落时刻的误差只有几秒。而采用“6点日出18点日落”，误差有时会很大。这需要复杂的科学计算，用代码库可以实现。</p>
+<h3 id="更多"><a href="#更多" class="headerlink" title="更多"></a>更多</h3><p>上述三条解决方案，保证了当地理论时间如何正确获取。还有一个问题，就是如何计算日出日落时刻，而简单采用“6点日出18点日落”也仅适用于春分、秋分前后，在冬至、夏至需要进行适当调整和近态拟合，否则计算日出日落时刻和实际日出日落时刻的误差会达到一个小时以上。</p>
+<p>实际上，影响一个地方日出日落时刻的因素有很多，日期，纬度，海拔高度都需要考虑。要理解这些，需要专业的地理知识和科学计算，写起来又是长篇大论，所以此处略去一万字。大致规律是：越靠近赤道，日出/日落时刻越趋近于6点/18点；在任何地点，越接近一年当中的春分、秋分，日出/日落时刻同样越趋近于6点/18点；在北半球的夏季，越靠北，日出越早日落越晚，直到出现极昼现象。如果你的业务开展到俄罗斯北部，北极圈以内，那么请忘记日出日落吧~北半球冬季则正相反。南半球在季节上也与北半球相反。</p>
+<p>地图应用背后的原理远不止这些。天朝特有的坐标扭曲和偏移也是一大问题，同国际标准的WGS84坐标系相比，国内地图商要交费使用保密的转换插件。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/03/01/手机定位原理/" rel="next" title="手机定位原理 - GPS/GLONASS/北斗 + WIFI + 基站">
+                <i class="fa fa-chevron-left"></i> 手机定位原理 - GPS/GLONASS/北斗 + WIFI + 基站
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/06/26/python中的“引用”和C-的引用/" rel="prev" title="python中的“引用”和C++的引用">
+                python中的“引用”和C++的引用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Justin Su</p>
+              <div class="site-description motion-element" itemprop="description">想法 玩物 创意</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">12</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#理论时区"><span class="nav-number">1.</span> <span class="nav-text">理论时区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#法定时区"><span class="nav-number">2.</span> <span class="nav-text">法定时区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#北京时间"><span class="nav-number">3.</span> <span class="nav-text">北京时间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GPS时间"><span class="nav-number">4.</span> <span class="nav-text">GPS时间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#仅通过经纬度能否获取当地法定时间？"><span class="nav-number">5.</span> <span class="nav-text">仅通过经纬度能否获取当地法定时间？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#“道路寻宝”BUG的解决方案"><span class="nav-number">6.</span> <span class="nav-text">“道路寻宝”BUG的解决方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更多"><span class="nav-number">7.</span> <span class="nav-text">更多</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Justin Su</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
