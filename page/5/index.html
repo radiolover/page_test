@@ -99,7 +99,7 @@
   <meta name="description" content="想法 玩物 创意">
 <meta property="og:type" content="website">
 <meta property="og:title" content="# Coding - 午夜场">
-<meta property="og:url" content="http://www.sujing.info/page/2/index.html">
+<meta property="og:url" content="http://www.sujing.info/page/5/index.html">
 <meta property="og:site_name" content="# Coding - 午夜场">
 <meta property="og:description" content="想法 玩物 创意">
 <meta property="og:locale" content="default">
@@ -113,7 +113,7 @@
 
   
   
-  <link rel="canonical" href="http://www.sujing.info/page/2/">
+  <link rel="canonical" href="http://www.sujing.info/page/5/">
 
 
 
@@ -293,7 +293,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.sujing.info/2017/08/30/字节序转换与结构体位域值的读取Part2/">
+    <link itemprop="mainEntityOfPage" href="http://www.sujing.info/2014/07/23/将P2P虚拟货币的算力用于公共的分布式计算的猜想/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Justin Su">
@@ -313,7 +313,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2017/08/30/字节序转换与结构体位域值的读取Part2/" class="post-title-link" itemprop="url">字节序转换与结构体位域值(bit field)的读取Part2-深入理解字节序和结构体位域存储方式</a>
+                <a href="/2014/07/23/将P2P虚拟货币的算力用于公共的分布式计算的猜想/" class="post-title-link" itemprop="url">将P2P虚拟货币（比特币、莱特币....）的算力用于公共的分布式计算的猜想</a>
               
             
           </h1>
@@ -338,7 +338,7 @@
                 
               
 
-              <time title="Created: 2017-08-30 22:11:37" itemprop="dateCreated datePublished" datetime="2017-08-30T22:11:37+08:00">2017-08-30</time>
+              <time title="Created: 2014-07-23 10:52:37" itemprop="dateCreated datePublished" datetime="2014-07-23T10:52:37+08:00">2014-07-23</time>
             
 
             
@@ -355,7 +355,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-04-14 18:18:07" itemprop="dateModified" datetime="2019-04-14T18:18:07+08:00">2019-04-14</time>
+                <time title="Modified: 2019-04-14 16:51:05" itemprop="dateModified" datetime="2019-04-14T16:51:05+08:00">2019-04-14</time>
               
             
           </span>
@@ -391,35 +391,10 @@
       
         
           
-            <p>上一篇文章讲解了带位域的结构体，在从大端机（Big Endian）传输到小端机(Little Endian)后如何解析位域值。下面继续深入详解字节序，以及位域存储的方式。</p>
-<p>(1) 我们知道，存储数字时，对小端机而言，数字的低位，存在低地址，高位存在高地址。大端机正相反。</p>
-<p>(2) 读取的方式，也是一样的。对于小端机，读出的低地址位作为数字的低位。</p>
-<p>(3) 此外Big-Endian/Little-Endian存储顺序，不仅仅针对字节，还针对字节内的比特位。对于小端机而言，字节内的8个比特，低地址端比特位，对应二进制数字的低位。</p>
-<p>(4) 对于结构体的多个位域，和普通成员一样，编译器同样按照地址由低到高顺序存储，无论是大端机还是小端机。只是位域内的比特顺序有区别罢了。</p>
-<p>(5) 表述一个数值，可以使用两种视图 :</p>
-<p>第一个是“逻辑视图”，通俗的表述方式，也就是我们平时在书本上看到的，手写数字时的方式。左边为高位，右边为低位。例如 375，-4.1，036，0xAF4D215B</p>
-<p>另一个是“内存视图”，即数字在内存中的存储方式，是我们程序员专有的一种表述方式。左边为低地址字节，右边为高地址字节。字节内左边为低地址比特位，右边为高地址比特位。很明显，同一个unsigned int值,在大端机、小端机上，分别有两种不同的“内存视图”。</p>
-<p>例如，uint16 0x2A1F，二进制比特位为0010 1010 0001 1111 （显然这一行使用的就是“逻辑视图”）</p>
-<p>在小端机上的“内存视图”为：1111 1000 0101 0100 （低地址 -&gt; 高地址）</p>
-<p>在大端机上的“内存视图”为：0010 1010 0001 1111 （低地址 -&gt; 高地址）</p>
-<p>另外可以看到，大端机的”内存视图”和”逻辑视图”是相同的。在很多相关的文章里，并没有去区分数字的两种表述方式，导致了很多混淆。其次，很多例子使用16进制，只能用于表达字节序，无法精确表达内部的比特顺序。</p>
-<p>再举一个上一节使用过的例子：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">exam_</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">　　<span class="keyword">unsigned</span> <span class="keyword">int</span> tag : <span class="number">6</span>;</span><br><span class="line">　　<span class="keyword">unsigned</span> <span class="keyword">int</span> field1 : <span class="number">3</span>;</span><br><span class="line">　　<span class="keyword">unsigned</span> <span class="keyword">int</span> field2 : <span class="number">7</span>;</span><br><span class="line">　　<span class="keyword">unsigned</span> <span class="keyword">int</span> field3 : <span class="number">11</span>;</span><br><span class="line">　　<span class="keyword">unsigned</span> <span class="keyword">int</span> pad : <span class="number">5</span>;</span><br><span class="line">&#125;Exam;</span><br><span class="line"> </span><br><span class="line">Exam ex;</span><br><span class="line">ex.tag = <span class="number">4</span>;</span><br><span class="line">ex.field1 = <span class="number">2</span>;</span><br><span class="line">ex.field2 = <span class="number">0x3a</span>;</span><br><span class="line">ex.field3 = <span class="number">0x4C1</span>;</span><br><span class="line">ex.pad = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
-<p>变量ex的6个位域的”内存视图”，在大端机是000100 010 0111010 10010110001 00000（低地址-&gt;高地址），在小端机是001000 010 0101110 10001101001 00000（低地址-&gt;高地址）。可见位域顺序是一样的，但是位域内比特位顺序不同。</p>
-<p>若按照4位一组，大端机”内存视图”为 0001 0001 0011 1010 1001 0110 0010 0000，如果按照unsigned int的方式读取这块内存，结果是0x113A9620，四个比特位对应一个16进制数，和”逻辑视图”完全一样</p>
-<p>在小端机上4位一组排列，”内存视图”为 0010 0001 0010 1110 1000 1101 0010 0000，如果按照unsigned int的方式读取这块内存，就会按照小端机的方式来解析内存。可以先把二进制翻译为”逻辑视图” - 把整个”内存视图”32位颠倒顺序，结果是0x04B17484，注意不是0x212E8D20.</p>
-<p>那么这些规则，对位域值的读取有什么影响呢？</p>
-<p>字节流在网络上传输是按照网络字节序传输的，也就是大端序。网卡不知道数据的含义(到底是int还是double,还是什么image)，只能看到一个个字节，因此它做的就是把每个字节的8个比特位转换为本机的位序。而具体的内容，则由我们的程序处理。比如对于整形等，调用socket接口的ntohl(),htonl()…等函数转换字节序。顺便提一句，对于float/double类型，可以直接memcpy到一个整形里面，之后按照整形正常的处理流程，到了目标机后，再memcpy到一个float/double里。</p>
-<p>char,short,int,long等2次幂大小的整形，作为一个单独的整体，经过整个流程梳理是没有任何问题的。但无法保证结构体内的多个位域，按照定义的先后顺序，从低地址到高地址排列。这意味着，无论如何，直接在代码中使用ex.tag的方式，是读不出tag位域的数据的。</p>
-<p>细分有如下几种情况：<br>(1) 主机内部传输无任何影响，毕竟是一样的CPU架构。</p>
-<p>(2) 相同字节序的主机间传输，同样没有影响。因为经过二次socket+网卡转换后，码流是相同的。读者可自行验证。</p>
-<p>(3) 大端机传输到小端机（上一节所描述的）。下列二进制值如没有特殊说明，都是”内存视图”。</p>
-<p>还以上面的位域为例，在大端机的为000100 010 0111010 10010110001 00000（低地址-&gt;高地址），按照四比特一组为： 0001 0001  0011 1010  1001 0110  0010 0000</p>
-<p>传输到网络中，由于大端序和网络序相同，所以网卡不做转换，字节流按照先后，依然是 0001 0001  0011 1010  1001 0110  0010 0000</p>
-<p>传输到小端机，网卡自动转换每个字节的比特序，但字节顺序维持原状， 1000 1000 0101 1100 0110 1001 0000 0100，可见原先跨字节相连的位域被”打散了”。字节内的位域，虽然比特顺序对了，但是从低比特位挪到了高比特位，位置错了。</p>
-<p>调用ntohl,比特序不变，转换字节序，0000 0100 0110 1001 0101 1100 1000 1000，效果是跨字节位域再次连通了。位域内存地址顺序，正好和原先相反。如果把大端机的内存视图画到一张纸上，相当于翻到纸的背面。</p>
-<p>此时，将这4个字节码流当作unsigned int，得到一个”无符号整形”，其”逻辑视图”等于大端机上的“内存视图”。左边恰好是结构体最开始的位域：0001 0001  0011 1010  1001 0110  0010 0000。因此我们将错就错，直接使用位操作符来左移相应的位数（需要计算后边所有位域的总比特数），即可得到对应的位域值。位移操作符等，都是对”逻辑视图”操作的。</p>
-<p>(4) 小端机传到大端机。网卡转换+ntohl转换后，依然在内存中得到一个位域顺序和正常顺序相反的”无符号整形”。只是这次使用位运算符要注意，第一个位域在”逻辑视图”的最右边，依次向左类推，和(3)的情形是相反的。</p>
+            <p>比特币最近几年非常火爆。发明者中本聪设计了一个特定的算法用于生成（发行）比特币，让各位玩家（矿工）用自己的CPU、显卡，或者更加专业的矿机，通过无聊的并行计算算出比特币的特定密码（挖矿）。为了保证全网比特币按照特定的发行速度递增，并最终无限趋近于上限2100万枚，挖矿难度会根据全网算力进行动态调整。由于进场人数急剧增加，谁的算力大，谁挖到比特币的几率就高，因此这是一个类似于“军备竞赛”的过程。前期硬件投入，加上巨大的电力消耗，回本机会往往非常渺茫，更重要的是，全网如此巨大的计算力白白地消耗在毫无意义的运算中。从比特币衍生出的各类山寨币，其运作机制完全相同，同样在无畏地消耗着大量算力。</p>
+<p>其中一个方案在最底层实现。由于各个矿机的平台不尽相同，使用者将自己要提交的代码，分解优化为一系列可重入的代码块（可以是函数），这些代码块之间除了数据传递，逻辑上是相互独立的，并且是有严格的先后线性顺序的，可并行安排。将这些代码按照某一平台进行编译，添加平台标记、顺序号，生成一系列代码段，并将这些binary提交到整个计算网络。相同平台的矿机(X86,ARM,SPARC,MOTO….)自动加载计算并返回结果给代码提交者。</p>
+<p>显然，并行的计算，且每一个并行分支含有极高次迭代的循环结构，利用率是最好的。因此使用者设计代码时要尽量符合这样的标准。</p>
+<p>从更高层次考虑，结构化程序理论表明，任何过程式语言都可以通过顺序、分支、循环三种基本结构进行组合。考虑将编程的基本单位，从语句提升为“算元”。经过精心挑选的基本算元（甚至可以是更高层的算法库）已安装在矿机中，使用者只需将运算过程（重复率很高的）按照一定的格式提交到全网，由网络自动分配算力，即可实现高效的利用。当然，这需要开发一种新的脚本语言。</p>
 
           
         
@@ -476,7 +451,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.sujing.info/2016/06/26/python中的“引用”和C-的引用/">
+    <link itemprop="mainEntityOfPage" href="http://www.sujing.info/2014/02/17/Linux-Bash环境下特殊符号转义的小结/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Justin Su">
@@ -496,7 +471,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2016/06/26/python中的“引用”和C-的引用/" class="post-title-link" itemprop="url">python中的“引用”和C++的引用</a>
+                <a href="/2014/02/17/Linux-Bash环境下特殊符号转义的小结/" class="post-title-link" itemprop="url">Linux Bash环境下特殊符号转义的小结</a>
               
             
           </h1>
@@ -521,7 +496,7 @@
                 
               
 
-              <time title="Created: 2016-06-26 18:48:18" itemprop="dateCreated datePublished" datetime="2016-06-26T18:48:18+08:00">2016-06-26</time>
+              <time title="Created: 2014-02-17 18:42:12" itemprop="dateCreated datePublished" datetime="2014-02-17T18:42:12+08:00">2014-02-17</time>
             
 
             
@@ -538,7 +513,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-04-14 16:43:00" itemprop="dateModified" datetime="2019-04-14T16:43:00+08:00">2019-04-14</time>
+                <time title="Modified: 2019-04-14 16:51:29" itemprop="dateModified" datetime="2019-04-14T16:51:29+08:00">2019-04-14</time>
               
             
           </span>
@@ -574,10 +549,19 @@
       
         
           
-            <p>python并不刻意区分“按值传递”和“按引用传递”。</p>
-<p>在底层，python将值分为不可变对象(比如int,str)和可变对象(比如列表)。所有的变量都是对某个对象的引用，赋值（=）和函数参数传递，都将改变变量所引用的对象。</p>
-<p>对于不可变对象，赋值和传参将导致新创建对象，这和C++的引用行为是不同的。此时，赋值和传参是按值传递。</p>
-<p>对于可变对象，赋值和传参，和C++引用的行为一致，是真正的按引用传递。</p>
+            <p>在lang:bash中，$、*、?、[、]、’、”、`、\、有特殊的含义。类似于编译器的预编译过程，lang:bash在扫描命令行的过程中，会在文本层次上，优先解释所有的特殊字符，之后对转换完成的新命令行，进行内核的系统调用。</p>
+<p>其中，反引号类似于函数调用，而不仅仅是简单的文本替换及匹配。</p>
+<p>命令行中，被单引号引用的部分，其中所有的特殊字符按照普通字符解释；</p>
+<p>双引号引用的部分，仅解释$（美元符号）、\（\n \t除外）、`（反引号），解释后的文本仅按照普通文字处理（同单引号）。</p>
+<p>反引号相当于命令替换，引用的部分优先执行，将运行结果替换到外层的命令行文本中；反引号可以嵌套，但是嵌套时内部的反引号必须用\转义</p>
+<p>反斜杠用于命令换行，以及echo -e解释。</p>
+<p>网上各种文章常见的例子，其中第二行重点介绍一下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># x=*                     </span><br><span class="line"># echo $x　　　　　　此行执行了两次替换，将$x替换为*，之后将*替换为当前目录下所有文件列表的文本，</span><br><span class="line"></span><br><span class="line">　　　　　　　　　　该文本作为参数赋给echo（lang:bash会自动按照优先级，进行多层次替换 ）</span><br><span class="line">hello.sh menus.sh misc.sh phonebook tshift.sh</span><br><span class="line"># echo &apos;$x&apos;               $x不进行任何解释，直接将文本‘$x’作为参数赋给echo</span><br><span class="line">$x</span><br><span class="line"># echo &quot;$x&quot;              $x替换为*，但是由于在双引号内，*不做替换，因此文本“*”将作为参数赋给echo</span><br></pre></td></tr></table></figure></p>
+<p>Tips:</p>
+<p>大多数Linux Distribution的默认shell为lang:bash，查询当前主机所有shell可执行如下命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ cat  /etc/shell</span><br></pre></td></tr></table></figure></p>
+<p>lang:bash内部集成了40多条命令，通用格式为：</p>
+<p>$ 命令 [-选项] [参数]</p>
+<p>其中，”-“后为单字符选项，”–”后为完整的单词选项。一般来说，命令的某项功能(feature)，会同时支持单字符选项及对应的多字符选项。</p>
+<p>在lang:bash中，<em>、?、[、]有特殊的含义，用于字符匹配。</em>代表0到多个字符，？代表单个字符。[]用于匹配单个字符，内部用短横线按照ASCII码顺序标明匹配的字符范围，或者枚举所有要匹配的字符。</p>
 
           
         
@@ -623,7 +607,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 

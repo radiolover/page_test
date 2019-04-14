@@ -293,7 +293,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.sujing.info/2013/09/14/Visual-C-编程实现Soft-AP-HostedNetwork-承载网络-功能/">
+    <link itemprop="mainEntityOfPage" href="http://www.sujing.info/2015/03/15/时区之痒:从手机GPS模块获取的时间,真的是北京时间么/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Justin Su">
@@ -313,7 +313,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2013/09/14/Visual-C-编程实现Soft-AP-HostedNetwork-承载网络-功能/" class="post-title-link" itemprop="url">Visual C++ 编程实现Soft AP (HostedNetwork/承载网络) 功能</a>
+                <a href="/2015/03/15/时区之痒:从手机GPS模块获取的时间,真的是北京时间么/" class="post-title-link" itemprop="url">时区之痒 - 从手机GPS模块获取的时间，真的是北京时间么？</a>
               
             
           </h1>
@@ -338,7 +338,7 @@
                 
               
 
-              <time title="Created: 2013-09-14 19:19:18" itemprop="dateCreated datePublished" datetime="2013-09-14T19:19:18+08:00">2013-09-14</time>
+              <time title="Created: 2015-03-15 13:35:37" itemprop="dateCreated datePublished" datetime="2015-03-15T13:35:37+08:00">2015-03-15</time>
             
 
             
@@ -355,7 +355,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-04-14 16:53:15" itemprop="dateModified" datetime="2019-04-14T16:53:15+08:00">2019-04-14</time>
+                <time title="Modified: 2019-04-14 16:43:49" itemprop="dateModified" datetime="2019-04-14T16:43:49+08:00">2019-04-14</time>
               
             
           </span>
@@ -391,33 +391,23 @@
       
         
           
-            <p>从Windows 7开始，微软在操作系统中加入的Soft AP功能，使用户能够通过无线网卡，开启虚拟AP，从而实现网络共享。Soft AP又称HostedNetwork(承载网络)，在Windows SDK中，提供了相应的API，以WlanHostedNetwork***开头的一系列函数。</p>
-<p>要编码实现Soft AP，首先需要添加相应的头文件及lib库<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;wlanapi.h&gt;</span><br><span class="line">#include &lt;iphlpapi.h&gt;</span><br><span class="line">#include &lt;winsock2.h&gt;</span><br><span class="line">#pragma comment(lib, &quot;ws2_32.lib&quot;)</span><br><span class="line">#pragma comment(lib, &quot;Wlanapi.lib&quot;)</span><br><span class="line">#pragma comment(lib, &quot;IPHLPAPI.lib&quot;</span><br></pre></td></tr></table></figure></p>
-<p>其中，wlanapi.h是无线网络API的声明文件，函数名一般以Wlan开头。iphlpapi.h用于调用GetAdapterInfo函数，获取网络虚拟接口信息。</p>
-<p>和winsock套接字编程类似，Wlan库使用前需获得句柄，并进行版本协商，只不过都在WlanOpenHandle实现了。使用完句柄后，调用WlanCloseHandle关闭以释放资源。</p>
-<p>WlanOpenHandle原形如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">DWORD WINAPI WlanOpenHandle(</span><br><span class="line">  _In_        DWORD dwClientVersion,</span><br><span class="line">  _Reserved_  PVOID pReserved,</span><br><span class="line">  _Out_       PDWORD pdwNegotiatedVersion,</span><br><span class="line">  _Out_       PHANDLE phClientHandle</span><br><span class="line">);</span><br></pre></td></tr></table></figure></p>
-<p>dwClientVersion指定程序期望使用的Wlan版本，使用宏WLAN_API_VERSION代替。从vista开始，版本号为2，xp系统为1。协商后的版本通过参数pdwNegotiatedVersion返回，通过检查主版本号来验证（如下代码所示）。句柄通过phClient返回。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">DWORD dwError = 0;</span><br><span class="line">DWORD dwServiceVersion = 0;</span><br><span class="line">HANDLE hClient = NULL;</span><br><span class="line"></span><br><span class="line">if (ERROR_SUCCESS != (dwError = WlanOpenHandle(</span><br><span class="line">    WLAN_API_VERSION,   </span><br><span class="line">    NULL,               // reserved</span><br><span class="line">    &amp;dwServiceVersion,</span><br><span class="line">    &amp;hClient</span><br><span class="line">    )))</span><br><span class="line">&#123;</span><br><span class="line">    return -1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// check service version</span><br><span class="line">if (WLAN_API_VERSION_MAJOR(dwServiceVersion) &lt; WLAN_API_VERSION_MAJOR(WLAN_API_VERSION_2_0))</span><br><span class="line">&#123;</span><br><span class="line">    WlanCloseHandle(hClient, NULL);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>启动承载网络前，需要将模式配置为allow状态，并设置SSID和密码。可以调用WlanHostedNetworkSetProperty进行设置，WlanHostedNetworkSetProperty原型如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">DWORD WINAPI WlanHostedNetworkSetProperty(</span><br><span class="line">  _In_        HANDLE hClientHandle,</span><br><span class="line">  _In_        WLAN_HOSTED_NETWORK_OPCODE OpCode,</span><br><span class="line">  _In_        DWORD dwDataSize,</span><br><span class="line">  _In_        PVOID pvData,</span><br><span class="line">  _Out_opt_   PWLAN_HOSTED_NETWORK_REASON pFailReason,</span><br><span class="line">  _Reserved_  PVOID pvReserved</span><br><span class="line">);</span><br></pre></td></tr></table></figure></p>
-<p>其中hClientHandle是我们之前调用WlanOpenHnadle获得的句柄；dwDataSize指定了pvData缓冲区的大小，而pvData指向的变量类型取决与OpCode的取值。OpCode为WLAN_HOSTED_NETWORK_OPCODE枚举，如果指定为wlan_hosted_network_opcode_enable，那么pvData传入一个BOOL型的变量指针，用于指示承载网络模式为允许还是禁止(allow/disallow)；如果OpCode为wlan_hosted_network_opcode_connection_settings，那么pvData指向WLAN_HOSTED_NETWORK_CONNECTION_SETTINGS结构体，指定承载网络的SSID和最大连接数目(peer count).</p>
-<p>示例代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">    // 设置承载网络模式为允许</span><br><span class="line">    BOOL bIsAllow = TRUE;</span><br><span class="line">    WLAN_HOSTED_NETWORK_REASON dwFailedReason;</span><br><span class="line">    DWORD dwReturnValue = WlanHostedNetworkSetProperty(hWlanClient, </span><br><span class="line">        wlan_hosted_network_opcode_enable, </span><br><span class="line">        sizeof(BOOL), </span><br><span class="line">        &amp;bIsAllow, </span><br><span class="line">        &amp;dwFailedReason, </span><br><span class="line">        NULL);</span><br><span class="line"></span><br><span class="line">    if(ERROR_SUCCESS != dwReturnValue)</span><br><span class="line">    &#123;</span><br><span class="line">        return -1;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    // 设置承载网络的SSID和最大连接数</span><br><span class="line">    WLAN_HOSTED_NETWORK_CONNECTION_SETTINGS wlanConnectionSetting;</span><br><span class="line">    memset(&amp;wlanConnectionSetting, 0, sizeof(WLAN_HOSTED_NETWORK_CONNECTION_SETTINGS));</span><br><span class="line"></span><br><span class="line">    // WLAN_HOSTED_NETWORK_CONNECTION_SETTINGS中的SSID字段必须为ANSI类型，因此如果程序使用的是Unicode，则需要做转换。</span><br><span class="line">#ifdef _UNICODE</span><br><span class="line">    WideCharToMultiByte(CP_ACP,</span><br><span class="line">        0,</span><br><span class="line">        strSSID.GetBuffer(0),   // 保存SSID的CString类型</span><br><span class="line">        strSSID.GetLength(),    // SSID字符串的长度</span><br><span class="line">        (LPSTR)wlanConnectionSetting.hostedNetworkSSID.ucSSID,</span><br><span class="line">        32,</span><br><span class="line">        NULL,</span><br><span class="line">        NULL);</span><br><span class="line">#else</span><br><span class="line">    memcpy(wlanConnectionSetting.hostedNetworkSSID.ucSSID, strSSID.GetBuffer(0), strlen(strSSID.GetBuffer(0)));</span><br><span class="line">#endif   </span><br><span class="line"></span><br><span class="line">    wlanConnectionSetting.hostedNetworkSSID.uSSIDLength = strlen((const char*)wlanConnectionSetting.hostedNetworkSSID.ucSSID);</span><br><span class="line">    wlanConnectionSetting.dwMaxNumberOfPeers = 100;    </span><br><span class="line"></span><br><span class="line">    dwReturnValue = WlanHostedNetworkSetProperty(m_hWlanClient, </span><br><span class="line">        wlan_hosted_network_opcode_connection_settings, </span><br><span class="line">        sizeof(WLAN_HOSTED_NETWORK_CONNECTION_SETTINGS), </span><br><span class="line">        &amp;wlanConnectionSetting,</span><br><span class="line">        &amp;dwFailedReason,</span><br><span class="line">        NULL);</span><br><span class="line">    if(ERROR_SUCCESS != dwReturnValue)</span><br><span class="line">    &#123;</span><br><span class="line">        return -1;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
-<p>调用WlanHostedNetworkSetSecondaryKey函数，设置承载网络的连接密码，函数原型如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">DWORD WINAPI WlanHostedNetworkSetSecondaryKey(</span><br><span class="line">  _In_        HANDLE hClientHandle,</span><br><span class="line">  _In_        DWORD dwKeyLength,</span><br><span class="line">  _In_        PUCHAR pucKeyData,</span><br><span class="line">  _In_        BOOL bIsPassPhrase,</span><br><span class="line">  _In_        BOOL bPersistent,</span><br><span class="line">  _Out_opt_   PWLAN_HOSTED_NETWORK_REASON pFailReason,</span><br><span class="line">  _Reserved_  PVOID pvReserved</span><br><span class="line">);</span><br></pre></td></tr></table></figure></p>
-<p>hClientHandle是我们之前调用WlanOpenHnadle获得的句柄；</p>
-<p>bIsPassPhrase表明传入pucKeyData的密码是否为口令格式，如果是口令格式，则是8-63位的ASCII字符串，该参数设置为TRUE；如果为16进制的binary，参数设置为FALSE；</p>
-<p>dwKeyLength是密码缓冲区的长度，密码为口令格式时，必须包括结尾的’\0’</p>
-<p>pucKeyData如果字符串，则必须为ANSI类型，因此如果IDE环境将字符串配置为UNICODE，需要做转换，可使用WideCharToMultiByte，或者T2A,W2A宏。</p>
-<p>bPersistent用来指示密码是否是持久的。如果不是，那么该密码只在本次启动有效；否则下次启动Soft AP依然使用本次设置的密码。</p>
-<p>示例代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">    UCHAR keyBuf[100] = &#123;0&#125;;</span><br><span class="line">#ifdef _UNICODE</span><br><span class="line">    WideCharToMultiByte(CP_ACP,</span><br><span class="line">        0,</span><br><span class="line">        strSecondaryKey.GetBuffer(0),</span><br><span class="line">        strSecondaryKey.GetLength(),</span><br><span class="line">        (LPSTR)keyBuf,</span><br><span class="line">        100,</span><br><span class="line">        NULL,</span><br><span class="line">        NULL);</span><br><span class="line">#else</span><br><span class="line">    memcpy(keyBuf, strSecondaryKey.GetBuffer(0), strlen(strSecondaryKey.GetBuffer(0)));</span><br><span class="line">#endif</span><br><span class="line">    dwReturnValue = WlanHostedNetworkSetSecondaryKey(m_hWlanClient,</span><br><span class="line">        strlen((const char*)keyBuf) + 1,</span><br><span class="line">        keyBuf,</span><br><span class="line">        TRUE,</span><br><span class="line">        FALSE,</span><br><span class="line">        &amp;dwFailedReason,</span><br><span class="line">        NULL);</span><br><span class="line">    if(ERROR_SUCCESS != dwReturnValue)</span><br><span class="line">    &#123;</span><br><span class="line">        return -1;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
-<p>启动或者停止Soft AP，需要用到如下四个函数：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">DWORD WINAPI WlanHostedNetworkStartUsing(</span><br><span class="line">  _In_        HANDLE hClientHandle,</span><br><span class="line">  _Out_opt_   PWLAN_HOSTED_NETWORK_REASON pFailReason,</span><br><span class="line">  _Reserved_  PVOID pvReserved</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">DWORD WINAPI WlanHostedNetworkStopUsing(</span><br><span class="line">  _In_        HANDLE hClientHandle,</span><br><span class="line">  _Out_opt_   PWLAN_HOSTED_NETWORK_REASON pFailReason,</span><br><span class="line">  _Reserved_  PVOID pvReserved</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">DWORD WINAPI WlanHostedNetworkForceStart(</span><br><span class="line">  _In_        HANDLE hClientHandle,</span><br><span class="line">  _Out_opt_   PWLAN_HOSTED_NETWORK_REASON pFailReason,</span><br><span class="line">  _Reserved_  PVOID pvReserved</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">DWORD WINAPI WlanHostedNetworkForceStop(</span><br><span class="line">  _In_        HANDLE hClientHandle,</span><br><span class="line">  _Out_opt_   PWLAN_HOSTED_NETWORK_REASON pFailReason,</span><br><span class="line">  _Reserved_  PVOID pvReserved</span><br><span class="line">);</span><br></pre></td></tr></table></figure></p>
-<p>参数的含义很直观，这里不再做更多地解释。值得注意的是，如果用StartUsing或者StopUsing版本的函数时，如果有客户端连接到了AP，调用WlanHostedNetworkStopUsing并不能立即停止Soft AP，而要等到客户端主动断开连接后，Soft AP才会停止。如果调用带Force的函数版本，则会强制停止Soft AP，不管是否有客户端正在连接到该AP上。当然，调用带Force的函数版本需要程序以管理员方式启动。</p>
-<p>示例代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">dwReturnValue = WlanHostedNetworkStartUsing(m_hWlanClient, &amp;dwFailedReason, NULL);</span><br><span class="line">if(ERROR_SUCCESS != dwReturnValue)</span><br><span class="line">&#123;</span><br><span class="line">    if (wlan_hosted_network_reason_interface_unavailable == dwFailedReason)</span><br><span class="line">    &#123;</span><br><span class="line">        return 0;</span><br><span class="line">    &#125;</span><br><span class="line">    return -1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">dwReturnValue = WlanHostedNetworkStopUsing(m_hWlanClient, &amp;dwFailedReason, NULL);</span><br><span class="line">if (ERROR_SUCCESS != dwReturnValue)</span><br><span class="line">&#123;</span><br><span class="line">    return -1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>启动Soft AP后，绑定Ip需要一定的时间，一般为2-3秒。Ip地址一般为192.168.173.1（也有可能是192.168.137.1）. </p>
-<p>调试程序时，可使用命令行方式使用Soft AP（管理员方式打开cmd）:</p>
-<p>查看当前承载网络状态 - netsh wlan show hostednetwork </p>
-<p>配置承载网络属性，如SSID,密码等 - netsh wlan set hostednetwork ssid=***** key=***** mode=allow|disallow  (星号部分为ascii字符，key必须在8-63个字符之间)</p>
-<p>启动承载网络 - netsh wlan start hostednetwork</p>
-<p>关闭承载网络 - netsh wlan stop hostednetwork</p>
-<img src="/assets/img/soft_ap.png">
+            <p>去年互联网地图行业开始引入众包模式，国内比较大的地图商，比如四维图新、高德地图、百度地图纷纷开始推出UGC应用，众包给用户采集门址、公交站等信息，并按照工作量给与采集者一定的回报。我曾经玩过某德推出的“道路寻宝”APP，应用内部集成了道路拍拍、门址采集、公交拍拍、POI任务等。该应用有如下限制：（1）为了防止作弊，采集者必须打开GPS，才能拍摄门牌号。（2）为了保证图片清晰，采集工作只能在日出后半小时至日落前半小时内进行。问题在于，应用仅仅读取手机的时间进行日出日落时间判断。有一次晚上参加用户线上会议，一位远在新疆的采集者抱怨，往往烈日当头采集就被强制结束。PS:其实还有一个BUG他没有发现：太阳升起之前，采集就已经放开了；而且如果你是位于东北三省东部的用户，在日落后依然可以采集~</p>
+<p>那么问题到底出在什么地方？先从时区谈起。</p>
+<h3 id="理论时区"><a href="#理论时区" class="headerlink" title="理论时区"></a>理论时区</h3><p>众所周知，由于时差问题，世界各地的日出日时刻是不同的。然而，每个国家或地区，都喜欢把日出时刻定在5-7点左右，把日落时刻定在17-19点左右。这样一来，使用全球统一的格林威治标准时间，就只能停留在专业领域，而在民用领域，大家各自为政，使用适合自己的时间。这就产生了时区。以穿越英国伦敦格林威治的本初子午线为基准，向东向西分别设置了12个时区，每个时区的“时间”数值相差一个小时。</p>
+<p>理论时区以被15整除的子午线为中心，向东西两侧延伸7.5度，即每15°划分一个时区，这是理论时区。理论时区的时间采用其中央经线（或标准经线）的地方时。所以每差一个时区，区时相差一个小时，相差多少个时区，就相差多少个小时。东边的时区时间比西边的时区时间来得早。格林威治的0度经线，向东西各延伸7.5度，构成的15度范围组成的时区就是UTC±0，0时区所采用的时间就是格林威治时间，该时间也被采用为国际标准时间度量。东经7.5-22.5度为东一区，以此类推，西半球也采取相同的类推方式。东十二区和西十二区是重合的(172.5E - 172.5W)，国际日期变更线(180E/W)从中间穿越。从东向西穿越，日期加1天，西向东穿越，日期减1天。</p>
+<h3 id="法定时区"><a href="#法定时区" class="headerlink" title="法定时区"></a>法定时区</h3><p>但是，国界线可不像经线、纬线那样平直。为了避开国界线，有的时区的形状并不规则，而且比较大的国家以国家内部行政分界线为时区界线，这是实际时区，即法定时区。于是，理论时区匀称、完美的划分，就变成了这样：（图片来自维基百科）<br><img src="/assets/img/timezone.png"></p>
+<p>从图中可以看到，中国横跨了5个理论时区（从东五区 - 东九区），但是全部归在了法定时区UTC+8。美国的法定时区则尽量趋近于理论时区，因此就有了美东、美西、太平洋..等时间的区别。为了充分利用阳光，有的地区夏季会采用夏时制。我国曾采用了6年夏时制，但是由于我国将多个理论时区统一为东八区，因此新疆等天亮的较晚的地区并不能起到节约能源的作用，加上我国民众科学素养普遍不高，导致了更多的混乱，因此草草收场。</p>
+<h3 id="北京时间"><a href="#北京时间" class="headerlink" title="北京时间"></a>北京时间</h3><p>某一国采用哪一个法定时区，一般取决于首都所在的理论时区。北京位于东八区，因此采用东八区中心经线（120E）所在位置的地方平太阳时（<strong><em>理论时间</em></strong>）作为<strong><em>法定时间</em></strong>，而不是北京的地方平太阳时（北京大致位于116E,40N附近）。上海位于120E,31N，几乎挨着东八时区的中央经线。</p>
+<p>移动设备、计算机的时间是如何校准的？</p>
+<p>众所周知，目前全球有为数众多的互联网授时服务，例如美国海军天文台授时中心，我国有中国科学院国家授时中心。这些授时服务提供的数据格式多种多样，比如从1970年1月1日到现在多少秒的整数。但这些授时中心采用的时间基准是GMT，即格林威治国际标准时间。我们电脑全新安装系统，或者手机、平板第一次启用，一般会有区域设置：“UTC+8，北京、香港、台北、新加坡”。设置完毕后，设备就可以换算出当地时间。</p>
+<h3 id="GPS时间"><a href="#GPS时间" class="headerlink" title="GPS时间"></a>GPS时间</h3><p>到这里相信很多人也都明白了。GPS模块（以Android手机为例，调用location.getTime()）获取的时间，是基于理论时区进行计算的<strong><em>当地理论时间</em></strong>。GPS卫星会广播当前的世界标准时间，然后根据经纬度算出所在理论时区，即可在线性时间内算出理论时区的当地时间。比如你人在新疆喀什，位于理论东五区，此时北京时间是上午10点，那么你的手机时间也是10点，但是GPS获取的时间则是7点（东八区 - 东五区 = 3小时时差）。</p>
+<h3 id="仅通过经纬度能否获取当地法定时间？"><a href="#仅通过经纬度能否获取当地法定时间？" class="headerlink" title="仅通过经纬度能否获取当地法定时间？"></a>仅通过经纬度能否获取当地法定时间？</h3><p>理论上可行。但是实际上非常困难：由于国界线的不规则性，要存储地球上某一点（假设是10米 * 10米面积的粒度）所在的国家或法定时区，数据量是非常庞大的，实际意义并不大。因此当前的解决方案，都是要求用户自己手动设置区域选项（而且大多是在初始化向导中强制设置）。夏时制的映射规则则要简单多了，因此一般都会有设备自行判断。</p>
+<h3 id="“道路寻宝”BUG的解决方案"><a href="#“道路寻宝”BUG的解决方案" class="headerlink" title="“道路寻宝”BUG的解决方案"></a>“道路寻宝”BUG的解决方案</h3><p>第一，将当前时间获取方式改为通过GPS获取，就可以进行真正的日出日落判断。如果以时区为粒度，一般在理论上取早晨6点日出，18点日落，并在夏至、冬至前后进行适当调整。</p>
+<p>第二，有些Android手机厂商开发的driver实在是太烂了，通过getTime可能获取不到当地理论时间，那么只有通过GPS读取的经度进行代码switch-case条件判断了：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">switch</span>(longitude)</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">　　<span class="keyword">case</span> <span class="number">67.5E-82</span><span class="number">.5</span>E（理论东五区）: 使用当地理论时间即“手机时间（北京时间）- <span class="number">3</span>小时”判断;</span><br><span class="line"></span><br><span class="line">　　<span class="keyword">case</span> <span class="number">82.5E-97</span><span class="number">.5</span>E（理论东六区）: 使用当地理论时间即“手机时间（北京时间）- <span class="number">2</span>小时”判断；</span><br><span class="line"></span><br><span class="line">　　.....；</span><br><span class="line"></span><br><span class="line">　　<span class="keyword">case</span> <span class="number">127.5E-142</span><span class="number">.5</span>E（理论东九区）: 使用当地理论时间即“手机时间（北京时间）+ <span class="number">1</span>小时”判断；<span class="comment">// 黑龙江佳木斯市抚远县黑瞎子岛差不多就在134E，这里是中国最东端</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>更好的做法，就是在按照上述方式获得当地理论时间后，还要直接通过GPS经纬度，计算该点的日出日落时刻。因为该方式是精确到点的，因此计算的日出日落时刻和实际的日出日落时刻的误差只有几秒。而采用“6点日出18点日落”，误差有时会很大。这需要复杂的科学计算，用代码库可以实现。</p>
+<h3 id="更多"><a href="#更多" class="headerlink" title="更多"></a>更多</h3><p>上述三条解决方案，保证了当地理论时间如何正确获取。还有一个问题，就是如何计算日出日落时刻，而简单采用“6点日出18点日落”也仅适用于春分、秋分前后，在冬至、夏至需要进行适当调整和近态拟合，否则计算日出日落时刻和实际日出日落时刻的误差会达到一个小时以上。</p>
+<p>实际上，影响一个地方日出日落时刻的因素有很多，日期，纬度，海拔高度都需要考虑。要理解这些，需要专业的地理知识和科学计算，写起来又是长篇大论，所以此处略去一万字。大致规律是：越靠近赤道，日出/日落时刻越趋近于6点/18点；在任何地点，越接近一年当中的春分、秋分，日出/日落时刻同样越趋近于6点/18点；在北半球的夏季，越靠北，日出越早日落越晚，直到出现极昼现象。如果你的业务开展到俄罗斯北部，北极圈以内，那么请忘记日出日落吧~北半球冬季则正相反。南半球在季节上也与北半球相反。</p>
+<p>地图应用背后的原理远不止这些。天朝特有的坐标扭曲和偏移也是一大问题，同国际标准的WGS84坐标系相比，国内地图商要交费使用保密的转换插件。</p>
 
           
         
@@ -474,7 +464,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.sujing.info/2013/09/10/禁用驱动签名最详细图文教程/">
+    <link itemprop="mainEntityOfPage" href="http://www.sujing.info/2015/03/01/手机定位原理/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Justin Su">
@@ -494,7 +484,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2013/09/10/禁用驱动签名最详细图文教程/" class="post-title-link" itemprop="url">Windows 8 / 8.1 禁用驱动签名最详细图文教程</a>
+                <a href="/2015/03/01/手机定位原理/" class="post-title-link" itemprop="url">手机定位原理 - GPS/GLONASS/北斗 + WIFI + 基站</a>
               
             
           </h1>
@@ -519,7 +509,7 @@
                 
               
 
-              <time title="Created: 2013-09-10 14:48:37" itemprop="dateCreated datePublished" datetime="2013-09-10T14:48:37+08:00">2013-09-10</time>
+              <time title="Created: 2015-03-01 19:11:37" itemprop="dateCreated datePublished" datetime="2015-03-01T19:11:37+08:00">2015-03-01</time>
             
 
             
@@ -536,7 +526,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-04-14 16:59:05" itemprop="dateModified" datetime="2019-04-14T16:59:05+08:00">2019-04-14</time>
+                <time title="Modified: 2019-04-14 16:46:09" itemprop="dateModified" datetime="2019-04-14T16:46:09+08:00">2019-04-14</time>
               
             
           </span>
@@ -572,23 +562,18 @@
       
         
           
-            <p>Windows 8</p>
-<p>鼠标右上角/右下角弹出边栏，选择“设置”<br><img src="/assets/img/driver01.png"></p>
-<p>点击“更改电脑设置”<br><img src="/assets/img/driver02.png"></p>
-<p>选择“常规”，右侧拖到底，点击“高级启动”-“立即重启”；<br><img src="/assets/img/driver03.png"></p>
-<p>稍后进入恢复页面，选择“疑难解答”<br><img src="/assets/img/driver04.jpg"></p>
-<p>进入疑难解答后，选择“高级选项”；<br><img src="/assets/img/driver05.jpg"></p>
-<p>进入高级选项后，选择“启动设置”；<br><img src="/assets/img/driver06.jpg"></p>
-<p>点击“重启”；<br><img src="/assets/img/driver07.jpg"></p>
-<p>重启后，按键盘上的数字键7即可。<br><img src="/assets/img/driver08.jpg"></p>
-<hr>
-<p>Windows 8.1</p>
-<p>鼠标右上角/右下角弹出边栏，选择“设置”<br><img src="/assets/img/driver09.jpg"></p>
-<p>点击“更改电脑设置”<br><img src="/assets/img/driver10.jpg"></p>
-<p>在电脑设置里，点击“更新和恢复”；<br><img src="/assets/img/driver11.jpg"></p>
-<p>在更新和恢复里，点击“恢复”，在右侧点击“高级启动”-“立即重启”；<br><img src="/assets/img/driver12.jpg"></p>
-<p>稍后进入恢复界面，点击“疑难解答”；<br><img src="/assets/img/driver13.jpg"></p>
-<p>之后的步骤和Windows 8一致，选择“高级选项”-“启动设置”-“重启”-键盘数字键7，即可。</p>
+            <h3 id="卫星定位系统-GPS-GLONASS-北斗："><a href="#卫星定位系统-GPS-GLONASS-北斗：" class="headerlink" title="卫星定位系统 - GPS/GLONASS/北斗："></a>卫星定位系统 - GPS/GLONASS/北斗：</h3><p>关于GPS、GLONASS、北斗、伽利略系统的科普请自行谷歌。</p>
+<p>GPS是使用最广泛的全球定位网络，几乎是所有智能手机的标配。进几年，俄罗斯的GLONASS定位功能也逐步加入智能手机芯片，与GPS组成双定位系统，定位速度大幅提升。中国自主研发的北斗导航系统，也开始出现在部分高端机型。至于欧洲的伽利略系统，目前还没有见到有哪部手机支持。</p>
+<p>卫星定位系统的优点在于精度高，误差一般在15米以内。GPS芯片会接收天空中多颗卫星的同步信号，然后根据信号的相位差，计算出具体的经纬度。保持多颗卫星信号同步，将误差控制在纳秒级以下，是GPS核心技术之一。</p>
+<p>下图是Android平台的著名GPS应用GPSTestPlus截图，可以看到本机支持GPS和GLONASS双定位系统（圆点为GPS卫星，三角形为GLONASS卫星），以及定位卫星在天球上的投影。</p>
+<img src="/assets/img/gps01.png">
+<h3 id="WIFI定位："><a href="#WIFI定位：" class="headerlink" title="WIFI定位："></a>WIFI定位：</h3><p>路由器默认都会进行SSID广播（除非用户手动配置关闭该功能），在广播帧包含了该路由器的MAC地址。此时需要采集装置进行MAC信息采集和信号强度信息采集，并上传到服务器，经过服务器的计算，保存为“MAC-经纬度”的映射。例如谷歌的街景采集车，曾经因隐私问题在德国被定性为非法。在国内，通过用户智能手机应用的后门功能采集，则是数据公司获取“MAC-经纬度”映射信息的主要途径。一般情况下，用户周边会有多个WIFI信号源，此时手机会默默地解析出所有WIFI的MAC地址，如果某些WIFI的信息在数据库中已经存在，则可以根据信号强度，推导出未知WIFI的经纬度。如果没有已知WIFI，而手机碰巧开着GPS，则也能完成数据采集。用户在不知情的情况下为地图公司搜集了所有的数据。可以想象，这样的数据量是非常庞大的。</p>
+<h3 id="基站定位："><a href="#基站定位：" class="headerlink" title="基站定位："></a>基站定位：</h3><p>基站数量远少于WIFI，且基站都有公开的位置数据，因此采集工作相对简单。</p>
+<h3 id="多种定位途径的精确度："><a href="#多种定位途径的精确度：" class="headerlink" title="多种定位途径的精确度："></a>多种定位途径的精确度：</h3><p>卫星定位系统  &gt; WIFI  &gt; 基站（蜂窝网络）。因此优先级也是卫星定位系统最高。</p>
+<p>以Android设备为例，如果用户未关闭GPS功能，则优先使用GPS，从GPS模块读取时钟校准、经纬度等数据。如果同时还开着WIFI和基站，则会同时采用WIFI和基站辅助定位，减少GPS芯片的计算步骤，提高定位速度，这就是A-GPS。</p>
+<p>如果关闭GPS，而WIFI模块保持开启，手机会读取周边所有WIFI信号的MAC地址和信号强度，并上传至某公司（通常是地图供应商）的服务器，服务器查询并计算后会返回经纬度。WIFI的覆盖范围一般只在50米内，因此定位精度非常接近卫星定位系统。</p>
+<p>如果WIFI模块也关闭了，那么只有通过基站（蜂窝网络）了。此时手机会接收到基站的小区ID，上传至服务器查询，服务器同样返回经纬度。但此时精度较差，误差一般在100以上，毕竟基站的覆盖范围也是很大的，仅凭信号强度是难以计算出精确位置的。</p>
+<p>需要注意的是，WIFI方式和基站方式，都需要联网，要不你怎么和服务器联系？但是WIFI模块打开后，即可进行WIFI扫描和信息采集，不必连接到某一AP上，基站也是一样，不必打开蜂窝网络。因为向服务器发起查询请求，既可走蜂窝数据流量，也可走WIFI流量。<br><img src="/assets/img/gps02.png"><br><img src="/assets/img/gps03.png"><br><img src="/assets/img/gps04.png"></p>
 
           
         
@@ -634,7 +619,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span>
+    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -692,6 +677,54 @@
 
           
 
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/radiolover" title="GitHub &rarr; https://github.com/radiolover" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:solarwindsj@gmail.com" title="E-Mail &rarr; mailto:solarwindsj@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://twitter.com/solarwindsj" title="Twitter &rarr; https://twitter.com/solarwindsj" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://instagram.com/radiolover2003" title="Instagram &rarr; https://instagram.com/radiolover2003" rel="noopener" target="_blank"><i class="fa fa-fw fa-instagram"></i>Instagram</a>
+                </span>
+              
+            </div>
           
 
           

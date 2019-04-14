@@ -103,7 +103,7 @@
 <meta property="og:site_name" content="# Coding - 午夜场">
 <meta property="og:description" content="上一篇文章讲解了带位域的结构体，在从大端机（Big Endian）传输到小端机(Little Endian)后如何解析位域值。下面继续深入详解字节序，以及位域存储的方式。 (1) 我们知道，存储数字时，对小端机而言，数字的低位，存在低地址，高位存在高地址。大端机正相反。 (2) 读取的方式，也是一样的。对于小端机，读出的低地址位作为数字的低位。 (3) 此外Big-Endian/Little-En">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-04-14T08:42:42.265Z">
+<meta property="og:updated_time" content="2019-04-14T10:18:07.052Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="字节序转换与结构体位域值(bit field)的读取Part2-深入理解字节序和结构体位域存储方式">
 <meta name="twitter:description" content="上一篇文章讲解了带位域的结构体，在从大端机（Big Endian）传输到小端机(Little Endian)后如何解析位域值。下面继续深入详解字节序，以及位域存储的方式。 (1) 我们知道，存储数字时，对小端机而言，数字的低位，存在低地址，高位存在高地址。大端机正相反。 (2) 读取的方式，也是一样的。对于小端机，读出的低地址位作为数字的低位。 (3) 此外Big-Endian/Little-En">
@@ -353,7 +353,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-04-14 16:42:42" itemprop="dateModified" datetime="2019-04-14T16:42:42+08:00">2019-04-14</time>
+                <time title="Modified: 2019-04-14 18:18:07" itemprop="dateModified" datetime="2019-04-14T18:18:07+08:00">2019-04-14</time>
               
             
           </span>
@@ -400,7 +400,7 @@
 <p>在大端机上的“内存视图”为：0010 1010 0001 1111 （低地址 -&gt; 高地址）</p>
 <p>另外可以看到，大端机的”内存视图”和”逻辑视图”是相同的。在很多相关的文章里，并没有去区分数字的两种表述方式，导致了很多混淆。其次，很多例子使用16进制，只能用于表达字节序，无法精确表达内部的比特顺序。</p>
 <p>再举一个上一节使用过的例子：</p>
-<figure class="highlight plain"><figcaption><span>c</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">typedef struct _exam_</span><br><span class="line">&#123;</span><br><span class="line">　　unsigned int tag : 6;</span><br><span class="line">　　unsigned int field1 : 3;</span><br><span class="line">　　unsigned int field2 : 7;</span><br><span class="line">　　unsigned int field3 : 11;</span><br><span class="line">　　unsigned int pad : 5;</span><br><span class="line">&#125;Exam;</span><br><span class="line"> </span><br><span class="line">Exam ex;</span><br><span class="line">ex.tag = 4;</span><br><span class="line">ex.field1 = 2;</span><br><span class="line">ex.field2 = 0x3a;</span><br><span class="line">ex.field3 = 0x4C1;</span><br><span class="line">ex.pad = 0;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">exam_</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">　　<span class="keyword">unsigned</span> <span class="keyword">int</span> tag : <span class="number">6</span>;</span><br><span class="line">　　<span class="keyword">unsigned</span> <span class="keyword">int</span> field1 : <span class="number">3</span>;</span><br><span class="line">　　<span class="keyword">unsigned</span> <span class="keyword">int</span> field2 : <span class="number">7</span>;</span><br><span class="line">　　<span class="keyword">unsigned</span> <span class="keyword">int</span> field3 : <span class="number">11</span>;</span><br><span class="line">　　<span class="keyword">unsigned</span> <span class="keyword">int</span> pad : <span class="number">5</span>;</span><br><span class="line">&#125;Exam;</span><br><span class="line"> </span><br><span class="line">Exam ex;</span><br><span class="line">ex.tag = <span class="number">4</span>;</span><br><span class="line">ex.field1 = <span class="number">2</span>;</span><br><span class="line">ex.field2 = <span class="number">0x3a</span>;</span><br><span class="line">ex.field3 = <span class="number">0x4C1</span>;</span><br><span class="line">ex.pad = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
 <p>变量ex的6个位域的”内存视图”，在大端机是000100 010 0111010 10010110001 00000（低地址-&gt;高地址），在小端机是001000 010 0101110 10001101001 00000（低地址-&gt;高地址）。可见位域顺序是一样的，但是位域内比特位顺序不同。</p>
 <p>若按照4位一组，大端机”内存视图”为 0001 0001 0011 1010 1001 0110 0010 0000，如果按照unsigned int的方式读取这块内存，结果是0x113A9620，四个比特位对应一个16进制数，和”逻辑视图”完全一样</p>
 <p>在小端机上4位一组排列，”内存视图”为 0010 0001 0010 1110 1000 1101 0010 0000，如果按照unsigned int的方式读取这块内存，就会按照小端机的方式来解析内存。可以先把二进制翻译为”逻辑视图” - 把整个”内存视图”32位颠倒顺序，结果是0x04B17484，注意不是0x212E8D20.</p>
@@ -534,6 +534,54 @@
 
           
 
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/radiolover" title="GitHub &rarr; https://github.com/radiolover" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:solarwindsj@gmail.com" title="E-Mail &rarr; mailto:solarwindsj@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://twitter.com/solarwindsj" title="Twitter &rarr; https://twitter.com/solarwindsj" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://instagram.com/radiolover2003" title="Instagram &rarr; https://instagram.com/radiolover2003" rel="noopener" target="_blank"><i class="fa fa-fw fa-instagram"></i>Instagram</a>
+                </span>
+              
+            </div>
           
 
           
